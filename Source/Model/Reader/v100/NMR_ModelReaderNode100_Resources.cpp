@@ -40,12 +40,13 @@ XML Model Stream.
 #include "Model/Reader/v100/NMR_ModelReaderNode100_CompositeMaterials.h"
 #include "Model/Reader/v100/NMR_ModelReaderNode100_MultiProperties.h"
 #include "Model/Reader/Slice1507/NMR_ModelReader_Slice1507_SliceStack.h"
-
+#include "Model/Reader/PartOptimization050/NMR_ModelReader_PartOptimization050_Optimization.h"
 #include "Model/Classes/NMR_ModelConstants.h"
 #include "Common/NMR_StringUtils.h"
 #include "Common/NMR_Exception.h"
 #include "Common/NMR_Exception_Windows.h"
 #include "Model/Classes/NMR_ModelConstants_Slices.h"
+#include "Model/Classes/NMR_ModelConstantsPartOptimization.h"
 
 namespace NMR {
 
@@ -141,6 +142,15 @@ namespace NMR {
 				m_pWarnings->addException(CNMRException(NMR_ERROR_NAMESPACE_INVALID_ELEMENT), mrwInvalidOptionalValue);
 		}
 
+		if (strcmp(pNameSpace, XML_3MF_NAMESPACE_PARTOPTIMIZATIONSPEC) == 0) {
+			if (strcmp(pChildName, XML_3MF_ELEMENT_PARTOPTIMIZATIONRESOURCE) == 0) {
+				m_pProgressMonitor->SetProgressIdentifier(ProgressIdentifier::PROGRESS_READRESOURCES);
+				m_pProgressMonitor->ReportProgressAndQueryCancelled(true);
+				PModelReaderNode pXMLNode = std::make_shared<CModelReaderNode_PartOptimization050_Optimization>(
+					m_pModel, m_pWarnings, m_pProgressMonitor);
+				pXMLNode->parseXML(pXMLReader);
+			}
+		}
 
 	}
 

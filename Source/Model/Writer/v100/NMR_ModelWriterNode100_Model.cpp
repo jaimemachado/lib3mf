@@ -45,12 +45,14 @@ This is the class for exporting the 3mf model stream root node.
 #include "Model/Classes/NMR_ModelMultiPropertyGroup.h"
 #include "Model/Classes/NMR_ModelMeshObject.h"
 #include "Model/Classes/NMR_ModelComponentsObject.h"
+#include "Model/Classes/NMR_ModelOptimization.h"
 #include "Model/Classes/NMR_Model.h"
 #include "Common/NMR_Exception.h"
 #include "Common/NMR_Exception_Windows.h"
 #include "Common/NMR_StringUtils.h"
 #include "Common/MeshInformation/NMR_MeshInformation_Properties.h"
 #include "Model/Classes/NMR_ModelConstants_Slices.h"
+#include "Model/Classes/NMR_ModelConstantsPartOptimization.h"
 
 #include "Common/3MF_ProgressMonitor.h"
 
@@ -68,6 +70,9 @@ namespace NMR {
 		m_bWriteBeamLatticeExtension = true;
 		m_bWriteSliceExtension = true;
 		m_bWriteSecureContentExtension = true;
+
+		m_bWritePartOptimizationExtension = true;
+
 		m_bWriteBaseMaterials = true;
 		m_bWriteObjects = true;
 
@@ -158,6 +163,15 @@ namespace NMR {
 				if (sRequiredExtensions.size() > 0)
 					sRequiredExtensions = sRequiredExtensions + " ";
 				sRequiredExtensions = sRequiredExtensions + XML_3MF_NAMESPACEPREFIX_SECURECONTENT;
+			}
+		}
+
+		if (m_bWritePartOptimizationExtension) {
+			writeConstPrefixedStringAttribute(XML_3MF_ATTRIBUTE_XMLNS, XML_3MF_NAMESPACEPREFIX_PARTOPTIMIZATION, XML_3MF_NAMESPACE_PARTOPTIMIZATIONSPEC);
+			if (m_pModel->RequireExtension(XML_3MF_NAMESPACE_PARTOPTIMIZATIONSPEC)) {
+				if (sRequiredExtensions.size() > 0)
+					sRequiredExtensions = sRequiredExtensions + " ";
+				sRequiredExtensions = sRequiredExtensions + XML_3MF_NAMESPACEPREFIX_PARTOPTIMIZATION;
 			}
 		}
 
@@ -371,6 +385,46 @@ namespace NMR {
 			writeFullEndElement();
 		}
 	}
+
+	void CModelWriterNode100_Model::writePartOptimizations() {
+		nfUint32 nOptimizationCount = m_pModel->getOptimizationCount();
+
+		for (nfUint32 nOptimizationIndex = 0; nOptimizationIndex < nOptimizationCount; nOptimizationIndex++) {
+			m_pProgressMonitor->IncrementProgress(1);
+			PModelOptimization pOptimizationResource = std::dynamic_pointer_cast<CModelOptimization>(m_pModel->getOptimizationResource(nOptimizationIndex));
+			if (pOptimizationResource != nullptr) {
+				writePartOptimization(pOptimizationResource);
+			}
+		}
+
+	}
+
+	void CModelWriterNode100_Model::writePartOptimization(PModelOptimization pOptimizationResource) {
+		__NMRASSERT(pOptimizationResource);
+		if (
+			(!m_bIsRootModel && pOptimizationResource->getPath() == m_pModel->curPath()) ||
+			(m_bIsRootModel && (pOptimizationResource->getPath() == m_pModel->rootPath() || pOptimizationResource->getPath().empty()))
+			)
+		{ 
+			writeStartElementWithPrefix(XML_3MF_ELEMENT_PARTOPTIMIZATIONRESOURCE, XML_3MF_NAMESPACEPREFIX_PARTOPTIMIZATION);
+			writeIntAttribute(XML_3MF_ATTRIBUTE_PARTOPTIMIZATIONID, pOptimizationResource->getResourceID()->getUniqueID());
+			if (pOptimizationResource->getOptimizationParamCount() > 0) {
+				for (nfUint32 paramIndex = 0; paramIndex < pOptimizationResource->getOptimizationParamCount(); paramIndex++) {
+					writeStartElementWithPrefix(XML_3MF_ELEMENT_PARTOPTIMIZATIONPARAMS, XML_3MF_NAMESPACEPREFIX_PARTOPTIMIZATION);
+					OPTIMIZATIONPARAM optimizationParam = pOptimizationResource->getOptimizationParam(paramIndex);
+					writeFloatAttribute(XML_3MF_ATTRIBUTE_PARTOPTIMIZATIONPARAMSCALINGX, optimizationParam.m_scaling[0]);
+					writeFloatAttribute(XML_3MF_ATTRIBUTE_PARTOPTIMIZATIONPARAMSCALINGY, optimizationParam.m_scaling[1]);
+					writeFloatAttribute(XML_3MF_ATTRIBUTE_PARTOPTIMIZATIONPARAMSCALINGZ, optimizationParam.m_scaling[2]);
+					writeFloatAttribute(XML_3MF_ATTRIBUTE_PARTOPTIMIZATIONPARAMOFFSETX, optimizationParam.m_offset[0]);
+					writeFloatAttribute(XML_3MF_ATTRIBUTE_PARTOPTIMIZATIONPARAMOFFSETY, optimizationParam.m_offset[1]);
+					writeFloatAttribute(XML_3MF_ATTRIBUTE_PARTOPTIMIZATIONPARAMOFFSETZ, optimizationParam.m_offset[2]);
+					writeEndElement();
+				}
+			}
+			writeFullEndElement();
+		}
+	}
+
 
 	void CModelWriterNode100_Model::writeObjects()
 	{
@@ -775,6 +829,9 @@ namespace NMR {
 			if (m_bWriteSliceExtension) {
 				writeSliceStacks();
 			}
+			if (m_bWritePartOptimizationExtension) {
+				writePartOptimizations();
+			}
 			if (m_bWriteObjects)
 				writeObjects();
 		}
@@ -784,6 +841,9 @@ namespace NMR {
 			}
 			if (m_bWriteObjects) {
 				writeObjects();
+			}
+			if (m_bWritePartOptimizationExtension) {
+				writePartOptimizations();
 			}
 		}
 		
@@ -798,6 +858,17 @@ namespace NMR {
 				throw CNMRException(NMR_ERROR_MISSINGUUID);
 			}
 			writePrefixedStringAttribute(XML_3MF_NAMESPACEPREFIX_PRODUCTION, XML_3MF_PRODUCTION_UUID, m_pModel->buildUUID()->toString());
+		}
+
+		if (m_bWritePartOptimizationExtension) {
+			if (m_pModel->hasOptimization()) {
+				if (m_pModel->getOptimizationMode() == MODELPARTOPTIMIZATIONMODE_OVERRIDE) {
+					writePrefixedStringAttribute(XML_3MF_NAMESPACEPREFIX_PARTOPTIMIZATION, XML_3MF_ATTRIBUTE_OPTIMIZATIONMODE, XML_3MF_ATTRIBUTEVALUE_OPTIMIZATIONMODEOVERRIDE);
+				} else {
+					writePrefixedStringAttribute(XML_3MF_NAMESPACEPREFIX_PARTOPTIMIZATION, XML_3MF_ATTRIBUTE_OPTIMIZATIONMODE, XML_3MF_ATTRIBUTEVALUE_OPTIMIZATIONMODEINCREMENTAL);
+				}
+				writePrefixedStringAttribute(XML_3MF_NAMESPACEPREFIX_PARTOPTIMIZATION, XML_3MF_ATTRIBUTE_OPTIMIZATIONUUID, m_pModel->getOptimizationUUID()->toString());
+			}
 		}
 
 		if (m_bIsRootModel)
@@ -834,7 +905,12 @@ namespace NMR {
 				if (m_bWriteSliceExtension && !pBuildItem->isValidForSlices()) {
 					throw CNMRException(NMR_ERROR_SLICETRANSFORMATIONPLANAR);
 				}
-
+				if (m_bWritePartOptimizationExtension) {
+					if (pBuildItem->hasOptimization()) {
+						writeConstPrefixedIntAttribute(XML_3MF_NAMESPACEPREFIX_PARTOPTIMIZATION, XML_3MF_ATTRIBUTE_OPTIMIZATIONID, pBuildItem->getOptimizationID());
+						writeConstPrefixedIntAttribute(XML_3MF_NAMESPACEPREFIX_PARTOPTIMIZATION, XML_3MF_ATTRIBUTE_OPTIMIZATIONINDEX, pBuildItem->getOptimizationIndex());
+					}
+				}
 				writeMetaDataGroup(pBuildItem->metaDataGroup());
 				if (pBuildItem->metaDataGroup()->getMetaDataCount() > 0)
 					writeFullEndElement();

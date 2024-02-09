@@ -92,6 +92,21 @@ namespace NMR {
 		pXMLWriter->Flush();
 	}
 
+	void CModelWriter_3MF::writeOptimizationStream(CXmlWriter * pXMLWriter) 
+	{
+		__NMRASSERT(pOptimizationResource != nullptr);
+
+		if (pXMLWriter == nullptr)
+			throw CNMRException(NMR_ERROR_INVALIDPARAM);
+
+		pXMLWriter->WriteStartDocument();
+		CModelWriterNode100_Model ModelNode(m_pModel.get(), pXMLWriter, m_pProgressMonitor, GetDecimalPrecision(), false);
+		ModelNode.writeToXML();
+
+		pXMLWriter->WriteEndDocument();
+		pXMLWriter->Flush();
+	}
+
 	void CModelWriter_3MF::writeModelStream(_In_ CXmlWriter * pXMLWriter, _In_ CModel * pModel)
 	{
 		__NMRASSERT(pModel != nullptr);

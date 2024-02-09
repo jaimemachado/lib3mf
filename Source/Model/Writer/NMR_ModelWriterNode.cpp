@@ -76,6 +76,17 @@ namespace NMR {
 		m_pXMLWriter->WriteAttributeString(pPrefix, pAttributeName, nullptr, pAttributeValue);
 	}
 
+	void CModelWriterNode::writeConstPrefixedIntAttribute(_In_z_ const nfChar * pPrefix, _In_z_ const nfChar * pAttributeName, _In_z_ const nfInt32 nAttributeValue)
+	{
+		__NMRASSERT(pAttributeName);
+		__NMRASSERT(pAttributeValue);
+		__NMRASSERT(pPrefix);
+		__NMRASSERT(m_pXMLWriter);
+		std::stringstream sStream;
+		sStream << nAttributeValue;
+		m_pXMLWriter->WriteAttributeString(pPrefix, pAttributeName, nullptr, sStream.str().c_str());
+	}
+
 	void CModelWriterNode::writeIntAttribute(_In_z_ const nfChar * pAttributeName, _In_ nfInt32 nAttributeValue)
 	{
 		std::stringstream sStream;

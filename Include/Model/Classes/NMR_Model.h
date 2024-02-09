@@ -96,6 +96,9 @@ namespace NMR {
 
 	typedef std::map<NMR::UniqueResourceID, NMR::UniqueResourceID> UniqueResourceIDMapping;
 
+	class CModelOptimization;
+	typedef std::shared_ptr <CModelOptimization> PModelOptimization;
+
 	// The Model class implements the unification of all model-file in a 3MF package
 	// It should be understood as a "MultiModel"
 	class CModel {
@@ -116,6 +119,10 @@ namespace NMR {
 
 		// build's UUID. Empty if none defined
 		PUUID m_buildUUID;
+		
+		// optimization attributes
+		eModelPartOptimizationMode m_optimizationMode;
+		PUUID m_optimizationUUID;
 
 		// Model Properties
 		nfUint32 m_nHandleCounter;
@@ -143,6 +150,7 @@ namespace NMR {
 		std::vector<PModelResource> m_BaseMaterialLookup;
 		std::vector<PModelResource> m_TextureLookup;
 		std::vector<PModelResource> m_SliceStackLookup;
+		std::vector<PModelResource> m_OptimizationLookup;
 		std::vector<PModelResource> m_ColorGroupLookup;
 		std::vector<PModelResource> m_Texture2DGroupLookup;
 		std::vector<PModelResource> m_CompositeMaterialsLookup;
@@ -315,6 +323,11 @@ namespace NMR {
 		nfUint32 getSliceStackCount();
 		PModelResource getSliceStackResource(_In_ nfUint32 nIndex);
 
+		// Convenience functiosn for part optimizations
+		nfUint32 getOptimizationCount();
+		PModelResource getOptimizationResource(_In_ nfUint32 nIndex);
+
+
 		// Sorts objects by correct dependency
 		std::list<CModelObject *> getSortedObjectList ();
 
@@ -327,6 +340,13 @@ namespace NMR {
 		nfBool hasCryptoRandCallbak() const;
 		nfUint64 generateRandomBytes(nfByte *, nfUint64);
 
+
+		//optimization attributes methods
+		eModelPartOptimizationMode getOptimizationMode();
+		void setOptimizationMode(eModelPartOptimizationMode nMode);
+		PUUID getOptimizationUUID();
+		void setOptimizationUUID(NMR::PUUID pUUID);
+		nfBool hasOptimization();
 	};
 
 	typedef std::shared_ptr <CModel> PModel;

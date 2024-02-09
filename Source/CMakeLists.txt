@@ -70,6 +70,8 @@ Source/API/lib3mf_texture2d.cpp
 Source/API/lib3mf_texture2dgroup.cpp
 Source/API/lib3mf_texture2dgroupiterator.cpp
 Source/API/lib3mf_texture2diterator.cpp
+Source/API/lib3mf_optimization.cpp
+Source/API/lib3mf_optimizationiterator.cpp
 Source/API/lib3mf_writer.cpp
 Source/API/lib3mf_utils.cpp
 Source/Common/3MF_ProgressMonitor.cpp
@@ -155,6 +157,7 @@ Source/Model/Classes/NMR_KeyStoreCEKParams.cpp
 Source/Model/Reader/BeamLattice1702/NMR_ModelReaderNode_BeamLattice1702_Ball.cpp
 Source/Model/Reader/BeamLattice1702/NMR_ModelReaderNode_BeamLattice1702_BallRef.cpp
 Source/Model/Reader/BeamLattice1702/NMR_ModelReaderNode_BeamLattice1702_Balls.cpp
+Source/Model/Classes/NMR_ModelOptimization.cpp
 Source/Model/Reader/BeamLattice1702/NMR_ModelReaderNode_BeamLattice1702_Beam.cpp
 Source/Model/Reader/BeamLattice1702/NMR_ModelReaderNode_BeamLattice1702_Beams.cpp
 Source/Model/Reader/BeamLattice1702/NMR_ModelReaderNode_BeamLattice1702_BeamLattice.cpp
@@ -231,6 +234,8 @@ Source/Model/Reader/NMR_ModelReaderNode_StringValue.cpp
 Source/Model/Reader/SecureContent101/NMR_ModelReaderNode_KeyStoreResourceData.cpp
 Source/Model/Reader/SecureContent101/NMR_ModelReaderNode_KeyStoreResourceDataGroup.cpp
 Source/Model/Writer/NMR_KeyStoreOpcPackageWriter.cpp
+Source/Model/Reader/PartOptimization050/NMR_ModelReader_PartOptimization050_Optimization.cpp
+Source/Model/Reader/PartOptimization050/NMR_ModelReader_PartOptimization050_OptimizationParam.cpp
 Source/Model/Writer/NMR_ModelWriter.cpp
 Source/Model/Writer/NMR_ModelWriterNode.cpp
 Source/Model/Writer/NMR_ModelWriterNode_ModelBase.cpp

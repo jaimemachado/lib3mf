@@ -35,6 +35,7 @@ A build reader model node is a parser for the build node of an XML Model Stream.
 #include "Model/Reader/v100/NMR_ModelReaderNode100_BuildItem.h"
 
 #include "Model/Classes/NMR_ModelConstants.h"
+#include "Model/Classes/NMR_ModelConstantsPartOptimization.h"
 #include "Common/NMR_StringUtils.h"
 #include "Common/NMR_Exception.h"
 #include "Common/NMR_Exception_Windows.h"
@@ -46,6 +47,7 @@ namespace NMR {
 	{
 		__NMRASSERT(pModel);
 		m_pModel = pModel;
+		m_optimizationMode = MODELPARTOPTIMIZATIONMODE_INCREMENTAL;
 	}
 
 	void CModelReaderNode100_Build::parseXML(_In_ CXmlReader * pXMLReader)
@@ -68,6 +70,10 @@ namespace NMR {
 			m_UUID = std::make_shared<CUUID>();
 		}
 		m_pModel->setBuildUUID(m_UUID);
+		if (m_optimizationUUID.get()) {
+			m_pModel->setOptimizationUUID(m_optimizationUUID);
+		}
+		m_pModel->setOptimizationMode(m_optimizationMode);
 	}
 
 	void CModelReaderNode100_Build::OnAttribute(_In_z_ const nfChar * pAttributeName, _In_z_ const nfChar * pAttributeValue)
@@ -90,6 +96,23 @@ namespace NMR {
 			}
 			else
 				m_pWarnings->addException(CNMRException(NMR_ERROR_NAMESPACE_INVALID_ATTRIBUTE), mrwInvalidOptionalValue);
+		}
+		if (strcmp(pNameSpace, XML_3MF_NAMESPACE_PARTOPTIMIZATIONSPEC) == 0) {
+			if (strcmp(pAttributeName, XML_3MF_ATTRIBUTE_OPTIMIZATIONMODE) == 0) {
+				if (strcmp(pAttributeValue, XML_3MF_ATTRIBUTEVALUE_OPTIMIZATIONMODEINCREMENTAL) == 0) {
+					m_optimizationMode = MODELPARTOPTIMIZATIONMODE_INCREMENTAL;
+				} else if (strcmp(pAttributeValue, XML_3MF_ATTRIBUTEVALUE_OPTIMIZATIONMODEOVERRIDE) == 0) {
+					m_optimizationMode = MODELPARTOPTIMIZATIONMODE_OVERRIDE;
+				} else {
+					m_pWarnings->addException(CNMRException(NMR_ERROR_PARTOPTIMIZATION_INVALIDATTRIBUTE), mrwInvalidOptionalValue);
+				}
+			} else if (strcmp(pAttributeName, XML_3MF_ATTRIBUTE_OPTIMIZATIONUUID) == 0) {
+				if (m_optimizationUUID.get())
+					m_pWarnings->addException(CNMRException(NMR_ERROR_DUPLICATEUUID), mrwFatal);
+				m_optimizationUUID = std::make_shared<CUUID>(pAttributeValue);
+			} else {
+				m_pWarnings->addException(CNMRException(NMR_ERROR_PARTOPTIMIZATION_INVALIDATTRIBUTE), mrwInvalidOptionalValue);
+			}
 		}
 	}
 

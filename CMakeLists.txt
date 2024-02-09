@@ -11,7 +11,7 @@ include(GNUInstallDirs)
 set(LIB3MF_VERSION_MAJOR 2)        # increase on every backward-compatibility breaking change of the API
 set(LIB3MF_VERSION_MINOR 2)        # increase on every backward compatible change of the API
 set(LIB3MF_VERSION_MICRO 0)        # increase on on every change that does not alter the API
-set(LIB3MF_VERSION_PRERELEASE "")  # denotes pre-release information of a version of lib3mf
+set(LIB3MF_VERSION_PRERELEASE "partoptimization-2")  # denotes pre-release information of a version of lib3mf
 
 project(lib3mf
   VERSION ${LIB3MF_VERSION_MAJOR}.${LIB3MF_VERSION_MINOR}.${LIB3MF_VERSION_MICRO}
@@ -21,6 +21,8 @@ project(lib3mf
 set(CMAKE_INSTALL_BINDIR bin CACHE PATH "directory for installing binary files")
 set(CMAKE_INSTALL_LIBDIR lib CACHE PATH "directory for installing library files")
 set(CMAKE_INSTALL_INCLUDEDIR include/lib3mf CACHE PATH "directory for installing header files")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(USE_INCLUDED_ZLIB "Use included zlib" ON)
 option(USE_INCLUDED_LIBZIP "Use included libzip" ON)

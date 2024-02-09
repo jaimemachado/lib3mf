@@ -457,6 +457,10 @@ namespace NMR {
 		case NMR_ERROR_XMLPARSER_INVALID_ESCAPESTRING: return "XML contains an invalid escape character.";
 		case NMR_ERROR_DUPLICATE_BOX_ATTRIBUTE: return "A box attribute is duplicated.";
 		case NMR_ERROR_DUPLICATE_MATINDICES_ATTRIBUTE: return "A matindices attribute is duplicated.";
+		case NMR_ERROR_PARTOPTIMIZATION_INVALIDATTRIBUTE: return "A part optimization contains an invalid attribute";
+		case NMR_ERROR_PARTOPTIMIZATION_INVALIDELEMENT: return "A part optimization contains an invalid element";
+		case NMR_ERROR_PARTOPTIMIZATION_MISSINGUUID: return "Model element is missing optimization uuid";
+		case NMR_ERROR_PARTOPTIMIZATIONRESOURCE_NOT_FOUND: return "Optimization resource has not been found previuosly in the document";
 
 		// Library errors (0xAXXX)
 		case NMR_ERROR_COULDNOTGETINTERFACEVERSION: return "Could not get interface version";

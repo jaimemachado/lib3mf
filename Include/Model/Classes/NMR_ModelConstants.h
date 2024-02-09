@@ -84,12 +84,14 @@ These are given by the 3MF Standard
 #define XML_3MF_NAMESPACE_SECURECONTENTSPEC "http://schemas.microsoft.com/3dmanufacturing/securecontent/2019/04"
 #define XML_3MF_NAMESPACE_DIGITALSIGNATURESPEC "http://www.w3.org/2000/09/xmldsig#"
 #define XML_3MF_NAMESPACE_CIPHERVALUESPEC "http://www.w3.org/2001/04/xmlenc#"
+#define XML_3MF_NAMESPACE_PARTOPTIMIZATIONSPEC "http://schemas.hp.com/3dmanufacturing/partoptimization/2019/04"
 
 #define XML_3MF_NAMESPACEPREFIX_MATERIAL "m"
 #define XML_3MF_NAMESPACEPREFIX_PRODUCTION "p"
 #define XML_3MF_NAMESPACEPREFIX_BEAMLATTICE "b"
 #define XML_3MF_NAMESPACEPREFIX_SLICE "s"
 #define XML_3MF_NAMESPACEPREFIX_SECURECONTENT "sc"
+#define XML_3MF_NAMESPACEPREFIX_PARTOPTIMIZATION "po"
 
 #define XML_3MF_ATTRIBUTE_XMLNS                     "xmlns"
 #define XML_3MF_ATTRIBUTE_PREFIX_XML                "xml"
