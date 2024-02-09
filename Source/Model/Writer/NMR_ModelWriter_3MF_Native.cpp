@@ -112,6 +112,8 @@ namespace NMR {
 		monitor()->ReportProgressAndQueryCancelled(true);
 
 		addNonRootModels();
+
+        addOptimizationAttachments();
 		
 		// add Attachments
 		monitor()->SetProgressIdentifier(ProgressIdentifier::PROGRESS_WRITEATTACHMENTS);
@@ -175,6 +177,44 @@ namespace NMR {
 				pNonRootModelAttachment = m_pOtherModel->addAttachment(sNonRootModelPath, PACKAGE_START_PART_RELATIONSHIP_TYPE, pStream);
 		}
 	}
+
+	void CModelWriter_3MF_Native::addOptimizationAttachments() {
+		__NMRASSERT(pModel != nullptr);
+		std::vector<std::string> optimizationPaths;
+		for (nfUint32 nIndex = 0; nIndex < m_pModel->getOptimizationCount(); nIndex++) {
+			CModelOptimization * pOptimization = dynamic_cast<CModelOptimization *>(m_pModel->getOptimizationResource(nIndex).get());
+			//skip ones that don't have path or have path the same as the root model
+			if (pOptimization->getPath().empty() || pOptimization->getPath() == m_pModel->rootPath()) {
+				continue;
+			}
+			optimizationPaths.push_back(pOptimization->getPath());
+		}
+		nfUint64 nCount = optimizationPaths.size();
+		for (nfUint32 nIndex = 0; nIndex < nCount; nIndex++) {
+			m_pProgressMonitor->SetProgressIdentifier(ProgressIdentifier::PROGRESS_WRITENONROOTMODELS);
+			m_pProgressMonitor->ReportProgressAndQueryCancelled(true);
+			std::string optPath = optimizationPaths[nIndex];
+			m_pModel->setCurPath(optPath);
+			PImportStream pStream;
+			{
+				PExportStreamMemory pExportStream = std::make_shared<CExportStreamMemory>();
+				PXmlWriter_Native pXMLWriter = std::make_shared<CXmlWriter_Native>(pExportStream);
+				writeOptimizationStream(pXMLWriter.get());
+				pStream = std::make_shared<CImportStream_Unique_Memory>(pExportStream->getData(), pExportStream->getDataSize());;
+			}
+
+			PModelAttachment pOptimizationAttachment = m_pModel->findModelAttachment(optPath);
+			if (pOptimizationAttachment.get() != nullptr) {
+				if (pOptimizationAttachment->getRelationShipType() != PACKAGE_START_PART_RELATIONSHIP_TYPE)
+					throw CNMRException(NMR_ERROR_DUPLICATEATTACHMENTPATH);
+				pOptimizationAttachment->setStream(pStream);
+			} else {
+				pOptimizationAttachment = m_pModel->addAttachment(optPath, PACKAGE_START_PART_RELATIONSHIP_TYPE, pStream);
+			}
+		}
+	}
+
+
 
 	void CModelWriter_3MF_Native::addAttachments(_In_ CModel * pModel, _In_ POpcPackagePart pModelPart)
 	{

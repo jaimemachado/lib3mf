@@ -36,6 +36,7 @@ A builditem reader model node is a parser for the builditem node of an XML Model
 #include "Model/Classes/NMR_ModelBuildItem.h"
 
 #include "Model/Classes/NMR_ModelConstants.h"
+#include "Model/Classes/NMR_ModelConstantsPartOptimization.h"
 #include "Common/NMR_Exception.h"
 #include "Common/NMR_Exception_Windows.h"
 #include "Common/NMR_StringUtils.h"
@@ -54,6 +55,11 @@ namespace NMR {
 		m_hasPath = false;
 
 		m_mTransform = fnMATRIX3_identity();
+
+		m_bHasOptId = false;
+		m_bHasOptIndex = false;
+		m_nOptimizationID = 0;
+		m_nOptimizationIndex = 0;
 	}
 
 	void CModelReaderNode100_BuildItem::parseXML(_In_ CXmlReader * pXMLReader)
@@ -114,6 +120,21 @@ namespace NMR {
 		}
 		pBuildItem->setUUID(m_UUID);
 		pBuildItem->setPath(m_sPath);
+
+		if (m_bHasOptId) {
+			if (m_nOptimizationID != 0) {
+				PPackageResourceID pID = m_pModel->findPackageResourceID(m_pModel->curPath(), m_nOptimizationID);
+				if (!pID.get())
+					throw CNMRException(NMR_ERROR_PARTOPTIMIZATIONRESOURCE_NOT_FOUND);
+				PModelOptimization pOptimizationResource = std::dynamic_pointer_cast<CModelOptimization>(m_pModel->findResource(pID->getUniqueID()));
+				if (!pOptimizationResource) {
+					throw CNMRException(NMR_ERROR_PARTOPTIMIZATIONRESOURCE_NOT_FOUND);
+				}
+				pBuildItem->assignOptimization(pOptimizationResource->getResourceID()->getUniqueID(), m_nOptimizationIndex);
+			}
+		} else if (m_bHasOptIndex) {
+			m_pWarnings->addException(CNMRException(NMR_ERROR_PARTOPTIMIZATION_INVALIDATTRIBUTE), eModelReaderWarningLevel::mrwInvalidOptionalValue);
+		}
 	}
 
 	void CModelReaderNode100_BuildItem::OnAttribute(_In_z_ const nfChar * pAttributeName, _In_z_ const nfChar * pAttributeValue)
@@ -158,6 +179,18 @@ namespace NMR {
 					m_pWarnings->addException(CNMRException(NMR_ERROR_PATH_NOT_ABSOLUTE), mrwInvalidOptionalValue);
 				}
 				m_hasPath = true;
+			}
+		}
+		if (strcmp(pNameSpace, XML_3MF_NAMESPACE_PARTOPTIMIZATIONSPEC) == 0) {
+			if (strcmp(pAttributeName, XML_3MF_ATTRIBUTE_OPTIMIZATIONID) == 0) {
+				m_nOptimizationID = fnStringToInt32(pAttributeValue);
+				if (0 == m_nOptimizationID) {
+					m_pWarnings->addException(CNMRException(NMR_ERROR_PARTOPTIMIZATION_INVALIDATTRIBUTE), eModelReaderWarningLevel::mrwInvalidOptionalValue);
+				}
+				m_bHasOptId = true;
+			} else if (strcmp(pAttributeName, XML_3MF_ATTRIBUTE_OPTIMIZATIONINDEX) == 0) {
+				m_bHasOptIndex = true;
+				m_nOptimizationIndex = fnStringToInt32(pAttributeValue);
 			}
 		}
 	}

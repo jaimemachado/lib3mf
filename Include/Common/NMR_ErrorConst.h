@@ -1302,8 +1302,17 @@ XML Parser Error Constants (0x9XXX)
 // A matindices attribute is duplicated
 #define NMR_ERROR_DUPLICATE_MATINDICES_ATTRIBUTE 0x9019
 
-//
+// A part optimization contains an invalid attribute
+#define NMR_ERROR_PARTOPTIMIZATION_INVALIDATTRIBUTE 0x901A
 
+// A part optimization contains an invalid eement
+#define NMR_ERROR_PARTOPTIMIZATION_INVALIDELEMENT 0x901B
+
+// Model element is missing optimization uuid
+#define NMR_ERROR_PARTOPTIMIZATION_MISSINGUUID 0x901C
+
+// Optimization resource has not been found previuosly in the document
+#define NMR_ERROR_PARTOPTIMIZATIONRESOURCE_NOT_FOUND 0x901D
 
 /*-------------------------------------------------------------------
 Library errors (0xAXXX)

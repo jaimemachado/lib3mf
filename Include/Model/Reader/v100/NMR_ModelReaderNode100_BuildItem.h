@@ -47,6 +47,11 @@ namespace NMR {
 		std::string m_sPartNumber;
 		NMATRIX3 m_mTransform;
 
+		nfBool m_bHasOptId;
+		nfInt32 m_nOptimizationID;
+		nfBool m_bHasOptIndex;
+		nfInt32 m_nOptimizationIndex;
+
 		// Production Extension
 		std::string m_sPath;
 		PUUID m_UUID;

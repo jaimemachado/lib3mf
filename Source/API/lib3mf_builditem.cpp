@@ -34,6 +34,7 @@ Abstract: This is a stub class definition of CBuildItem
 #include "lib3mf_utils.hpp"
 #include "lib3mf_object.hpp"
 #include "lib3mf_metadatagroup.hpp"
+#include "lib3mf_optimization.hpp"
 // Include custom headers here.
 
 using namespace Lib3MF::Impl;
@@ -136,4 +137,30 @@ Lib3MF::sBox CBuildItem::GetOutbox()
 	s.m_MaxCoordinate[1] = sOutbox.m_max.m_fields[1];
 	s.m_MaxCoordinate[2] = sOutbox.m_max.m_fields[2];
 	return s;
+}
+
+bool Lib3MF::Impl::CBuildItem::HasOptimization()
+{
+	return buildItem().hasOptimization();
+}
+
+Lib3MF_uint32 Lib3MF::Impl::CBuildItem::GetOptimizationID() {
+	return buildItem().getOptimizationID();
+}
+
+Lib3MF_uint32 Lib3MF::Impl::CBuildItem::GetOptimizationIndex() {
+	return buildItem().getOptimizationIndex();
+}
+
+void Lib3MF::Impl::CBuildItem::AssignOptimizationParam(const Lib3MF_uint32 nResourceID, const Lib3MF_uint32 nResourceIndex) 
+{
+	NMR::PModelResource pResource = buildItem().getModel()->findResource(nResourceID);
+	if (dynamic_cast<NMR::CModelOptimization*>(pResource.get())) {
+		NMR::PModelOptimization pOptimizationResource = std::dynamic_pointer_cast<NMR::CModelOptimization>(pResource);
+		if (nResourceIndex < pOptimizationResource->getOptimizationParamCount()) {
+			buildItem().assignOptimization(pOptimizationResource->getPackageResourceID()->getUniqueID(), nResourceIndex);
+			return;
+		}
+	}
+	throw ELib3MFInterfaceException(LIB3MF_ERROR_INVALIDOPTIMIZATIONRESOURCE);
 }

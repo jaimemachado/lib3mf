@@ -47,6 +47,8 @@ Abstract: This is a stub class definition of CModel
 #include "lib3mf_attachment.hpp"
 #include "lib3mf_slicestack.hpp"
 #include "lib3mf_slicestackiterator.hpp"
+#include "lib3mf_optimization.hpp"
+#include "lib3mf_optimizationiterator.hpp"
 #include "lib3mf_texture2d.hpp"
 #include "lib3mf_texture2diterator.hpp"
 #include "lib3mf_basematerialgroupiterator.hpp"
@@ -665,8 +667,72 @@ void CModel::RemoveCustomContentType (const std::string & sExtension)
 	m_model->removeCustomContentType(sExtension);
 }
 
-Lib3MF::sBox CModel::GetOutbox()
+/* Optimization code - begin */
+bool CModel::HasOptimization() {
+	return !GetOptimizationUUID().empty();
+}
+
+Lib3MF::eOptimizationMode CModel::GetOptimizationMode()
 {
+	return eOptimizationMode(model().getOptimizationMode());
+}
+
+void CModel::SetOptimizationMode(const Lib3MF::eOptimizationMode eOptimizationMode)
+{
+	model().setOptimizationMode(NMR::eModelPartOptimizationMode(eOptimizationMode));
+}
+
+std::string CModel::GetOptimizationUUID()
+{
+	NMR::PUUID optUUID = model().getOptimizationUUID();
+	if(optUUID.get() != nullptr)
+		return optUUID->toString();
+	return "";
+}
+
+void CModel::SetOptimizationUUID(const std::string & sOptimizationUUID)
+{
+	NMR::PUUID pUUID = std::make_shared<NMR::CUUID>(sOptimizationUUID);
+	model().setOptimizationUUID(pUUID);
+}
+
+Lib3MF::Impl::IOptimization * CModel::GetOptimizationByID(const Lib3MF_uint32 nResourceID) {
+	NMR::PModelResource pResource = model().findResource(nResourceID);
+	NMR::PModelOptimization pOptimization = std::dynamic_pointer_cast<NMR::CModelOptimization>(pResource);
+	if (!pOptimization)
+		throw ELib3MFInterfaceException(LIB3MF_ERROR_INVALIDOPTIMIZATIONRESOURCE);
+	return new COptimization(pOptimization);
+}
+
+IOptimizationIterator * CModel::GetOptimizations()
+{
+	auto pResult = std::unique_ptr<COptimizationIterator>(new COptimizationIterator());
+	Lib3MF_uint32 nCount = model().getOptimizationCount();
+
+	for (Lib3MF_uint32 nIdx = 0; nIdx < nCount; nIdx++) {
+		auto resource = model().getOptimizationResource(nIdx);
+		if (dynamic_cast<NMR::CModelOptimization *>(resource.get()))
+			pResult->addResource(resource);
+	}
+	return pResult.release();
+}
+
+IOptimization * CModel::AddOptimization()
+{
+	NMR::ModelResourceID NewResourceID = model().generateResourceID();
+	NMR::PModelOptimization pNewResource = std::make_shared<NMR::CModelOptimization>(NewResourceID, &model());
+
+	model().addResource(pNewResource);
+
+	if (!model().hasOptimization()) {
+		NMR::PUUID pUUID = std::make_shared<NMR::CUUID>();
+		model().setOptimizationUUID(pUUID);
+	}
+
+	return new COptimization(pNewResource);
+}
+/* Optimization code - end */
+Lib3MF::sBox CModel::GetOutbox() {
 	NMR::NOUTBOX3 sOutbox;
 	NMR::fnOutboxInitialize(sOutbox);
 

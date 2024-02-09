@@ -194,6 +194,23 @@ public:
 	IKeyStore * GetKeyStore();
 
 	void SetRandomNumberCallback(const Lib3MF::RandomNumberCallback pTheCallback, const Lib3MF_pvoid pUserData);
+	// Inherited via IModel
+	virtual bool HasOptimization();
+
+	virtual Lib3MF::eOptimizationMode GetOptimizationMode() override;
+
+	virtual void SetOptimizationMode(const Lib3MF::eOptimizationMode eOptimizationMode) override;
+
+	virtual std::string GetOptimizationUUID();
+
+	virtual void SetOptimizationUUID(const std::string & sOptimizationUUID) override;
+
+	virtual Lib3MF::Impl::IOptimization * GetOptimizationByID(const Lib3MF_uint32 nResourceID);
+
+	virtual IOptimizationIterator * GetOptimizations() override;
+
+	virtual IOptimization * AddOptimization() override;
+
 };
 
 }

@@ -41,6 +41,8 @@ namespace NMR {
 	protected:
 		CModel * m_pModel;
 		PUUID m_UUID;
+		PUUID m_optimizationUUID;
+		eModelPartOptimizationMode m_optimizationMode;
 
 		virtual void OnAttribute(_In_z_ const nfChar * pAttributeName, _In_z_ const nfChar * pAttributeValue);
 		virtual void OnNSAttribute(_In_z_ const nfChar * pAttributeName, _In_z_ const nfChar * pAttributeValue, _In_z_ const nfChar * pNameSpace);

@@ -28,6 +28,7 @@ set(SRCS_UNITTEST
 	./Source/SecureContent.cpp
 	./Source/Slice.cpp
 	./Source/SliceStack.cpp
+	./Source/Optimization.cpp
 	./Source/UnitTest_Utilities.cpp
 	./Source/UnitTest_EncryptionUtils.cpp
 	./Source/Writer.cpp

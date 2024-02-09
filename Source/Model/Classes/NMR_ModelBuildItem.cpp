@@ -46,6 +46,8 @@ namespace NMR {
 		m_mTransform = fnMATRIX3_identity ();
 		m_nHandle = nHandle;
 		m_MetaDataGroup = std::make_shared<CModelMetaDataGroup>();
+		m_optimizationID = 0;
+		m_optimizationIndex = 0;
 
 		setUUID(std::make_shared<CUUID>());
 	}
@@ -58,6 +60,8 @@ namespace NMR {
 		m_mTransform = mTransform;
 		m_nHandle = nHandle;
 		m_MetaDataGroup = std::make_shared<CModelMetaDataGroup>();
+		m_optimizationID = 0;
+		m_optimizationIndex = 0;
 
 		setUUID(std::make_shared<CUUID>());
 	}
@@ -147,5 +151,26 @@ namespace NMR {
 	bool CModelBuildItem::isValidForSlices() {
 		NMATRIX3 mat = getTransform();
 		return m_pObject->isValidForSlices(mat);
+	}
+
+	bool CModelBuildItem::hasOptimization()
+	{
+		return m_optimizationID != 0;
+	}
+
+	ModelResourceID CModelBuildItem::getOptimizationID()
+	{
+		return m_optimizationID;
+	}
+
+	ModelResourceIndex CModelBuildItem::getOptimizationIndex()
+	{
+		return m_optimizationIndex;
+	}
+
+	void CModelBuildItem::assignOptimization(ModelResourceID optimizationID, ModelResourceIndex optimizationIndex)
+	{	
+		this->m_optimizationID= optimizationID;
+		this->m_optimizationIndex = optimizationIndex;
 	}
 }

@@ -65,6 +65,7 @@
 		<error name="INVALIDBUILDITEM" code="110" description="A build item is invalid"/>
 		<error name="INVALIDBASEMATERIALGROUP" code="111" description="A basematerialgroup is invalid"/>
 		<error name="INVALIDSLICESTACKRESOURCE" code="112" description="A slicestack resource is invalid"/>
+		<error name="INVALIDOPTIMIZATIONRESOURCE" code="4000" description="An optimization resource is invalid"/>
 		<error name="INVALIDTEXTURERESOURCE" code="113" description="A texture resource is invalid"/>
 		<error name="INVALIDCOLORGROUP" code="114" description="A color group resource is invalid"/>
 		<error name="INVALIDTEXTURE2DGROUP" code="115" description="A texture2d group resource is invalid"/>
@@ -97,6 +98,11 @@
 	<enum name="SlicesMeshResolution">
 		<option name="Fullres" value="0"/>
 		<option name="Lowres" value="1"/>
+	</enum>
+
+	<enum name="OptimizationMode">
+		<option name="Incremental" value="0"/>
+		<option name="Override" value="1"/>
 	</enum>
 
 	<enum name="ModelUnit">
@@ -177,6 +183,7 @@
 		<option name="WRITETRIANGLES" value="21"/>
 		<option name="WRITESLICES" value="22"/>
 		<option name="WRITEKEYSTORE" value="23"/>
+		<option name="WRITEOPTIMIZATIONS" value="33"/>
 	</enum>
 
 	<enum name="BlendMethod">
@@ -242,6 +249,15 @@
 	<struct name="Ball">
 		<member name="Index" type="uint32"/>
 		<member name="Radius" type="double"/>
+	</struct>
+
+	<struct name="OptimizationParam">
+		<member name="ScalingX" type="single"/>
+		<member name="ScalingY" type="single"/>
+		<member name="ScalingZ" type="single"/>
+		<member name="OffsetX" type="single"/>
+		<member name="OffsetY" type="single"/>
+		<member name="OffsetZ" type="single"/>
 	</struct>
 
 	<functiontype name="ProgressCallback" description="A callback function">
@@ -478,6 +494,12 @@
 	<class name="MultiPropertyGroupIterator" parent="ResourceIterator">
 		<method name="GetCurrentMultiPropertyGroup" description="Returns the MultiPropertyGroup the iterator points at.">
 			<param name="Resource" type="handle" class="MultiPropertyGroup" pass="return" description="returns the MultiPropertyGroup instance."/>
+		</method>
+	</class>
+
+	<class name="OptimizationIterator" parent="ResourceIterator">
+		<method name="GetCurrentOptimization" description="Returns the resource the iterator points at.">
+			<param name="Resource" type="handle" class="Optimization" pass="return" description="returns the resource instance." />
 		</method>
 	</class>
 
@@ -1102,8 +1124,40 @@
 		<method name="GetOutbox" description="Returns the outbox of a build item">
 			<param name="Outbox" type="struct" class="Box" pass="return" description="Outbox of this build item"/>
 		</method>
+		<method name="HasOptimization" description="Tells whether this BuildItem has an associated Optimization">
+			<param name="HasOpt" type="bool" pass="return" description="returns true, if the BuildItem has an Optimization associated"/>
+		</method>
+		<method name="GetOptimizationID" description="Returns the id of the Optimization resource associated with this BuildItem">
+			<param name="ResourceID" type="uint32" pass="return" description="reference an Optimization object"/>
+		</method>
+		<method name="GetOptimizationIndex" description="Returns the index of the OptimizationParam from the Optimization resource associated with this BuildItem">
+			<param name="ResourceIndex" type="uint32" pass="return" description="reference an OptimizationParam inside the optimization resource pointed by ResourceID"/>
+		</method>
+		<method name="AssignOptimizationParam" description="assigns a optimization to the object">
+			<param name="ResourceID" type="uint32" pass="in" description="optimization resource ID" />
+			<param name="ResourceIndex" type="uint32" pass="in" description="the index of the optimization param inside the optimization pointed by ResourceID" />
+		</method>
 	</class>
 
+	<class name="Optimization" parent="Resource">
+		<method name="AddOptimizationParam" description="Include new OptimizationParam object in the array">
+			<param name="Param" type="struct" class="OptimizationParam" pass="in" description="struct buffer to hold values"/>
+			<param name="ResourceIndex" type="uint32" pass="return" description="index of this optimization param inside the array of optimization params"/>
+		</method>
+		<method name="GetOptimizationParam" description="Retrieve a single OptimizationParam object of OptimizationParams array">
+			<param name="ResourceIndex" type="uint32" pass="in" description="array index that will be retrived"/>
+			<param name="Param" type="struct" class="OptimizationParam" pass="return" description="return an instance of OptimizationParam"/>
+		</method>
+		<method name="RemoveOptimizationParam" description="Remove a single OptimizationParam object of OptimizationParams array">
+			<param name="ResourceIndex" type="uint32" pass="in" description="array index that will be removed"/>
+		</method>
+		<method name="SetPath" description="Sets the package path where this Optimization should be stored. Input an empty string to reset the path">
+			<param name="Path" type="string" pass="in" description="the package path where this Optimization should be stored" />
+		</method>
+		<method name="GetPath" description="Obtains the package path where this Optimization should be stored. Returns an empty string if the Optimization is stored within the root model.">
+			<param name="Path" type="string" pass="return" description="the package path where this Optimization will be stored" />
+		</method>
+	</class>
 
 	<class name="BuildItemIterator">
 		<method name="MoveNext" description="Iterates to the next build item in the list.">
@@ -1465,6 +1519,31 @@
 		</method>
 		<method name="SetBuildUUID" description="sets the build's UUID">
 			<param name="UUID" type="string" pass="in" description="the UUID as string of the form 'xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxxxxxx'"/>
+		</method>
+		<method name="HasOptimization" description="return whether the current model has any optimization set">
+			<param name="HasOpt" type="bool" pass="return" description="flag whether the build has optimization"/>
+		</method>
+		<method name="GetOptimizationMode" description="return the optimization mode of model object">
+			<param name="OptimizationMode" type="enum" class="OptimizationMode" pass="return" description="the OptimizationMode that the model will use"/>
+		</method>
+		<method name="SetOptimizationMode" description="set the optimization mode of model object">
+			<param name="OptimizationMode" type="enum" class="OptimizationMode" pass="in" description=" the OptimizationMode that will be set "/>
+		</method>
+		<method name="GetOptimizationUUID" description="return the optimization UUID ">
+			<param name="OptimizationUUID" type="string" pass="return" description="the optimization UUID resource that will be used or an empty string"/>
+		</method>
+		<method name="SetOptimizationUUID" description="set the optimization UUID ">
+			<param name="OptimizationUUID" type="string" pass="in" description="the OptimizationMode that was defined previously"/>
+		</method>
+		<method name="GetOptimizationByID" description="finds an optimization by its id">
+			<param name="ResourceID" type="uint32" pass="in" description="resource id"/>
+			<param name="OptimizationInstance" type="handle" class="Optimization" pass="return" description="the target Optimization instance"/>
+		</method>
+		<method name="GetOptimizations" description="return an OptmizationIterator">
+			<param name="OptimizationIterator" type="handle" class="OptimizationIterator" pass="return" description="OptimizationIterator to manage Optimization array"/>
+		</method>
+		<method name="AddOptimization" description="Add optimization instance on Optimization array">
+			<param name="Optimization" type="handle" class="Optimization" pass="return" description="Optimization object to be added to the Optimization array"/>
 		</method>
 		<method name="GetBuildItems" description="creates a build item iterator instance with all build items.">
 			<param name="BuildItemIterator" type="handle" class="BuildItemIterator" pass="return" description="returns the iterator instance."/>

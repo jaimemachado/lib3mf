@@ -46,6 +46,7 @@ A model is an in memory representation of the 3MF file.
 #include "Model/Classes/NMR_ModelMultiPropertyGroup.h"
 #include "Model/Classes/NMR_ModelTexture2D.h"
 #include "Model/Classes/NMR_ModelSliceStack.h"
+#include "Model/Classes/NMR_ModelOptimization.h"
 #include "Model/Classes/NMR_ModelMetaDataGroup.h"
 #include "Model/Classes/NMR_KeyStore.h"
 
@@ -531,6 +532,9 @@ namespace NMR {
 		CModelSliceStack *pSliceStack = dynamic_cast<CModelSliceStack *>(pResource.get());
 		if (pSliceStack != nullptr) 
 			m_SliceStackLookup.push_back(pResource);
+		CModelOptimization *pOptimization = dynamic_cast<CModelOptimization *>(pResource.get());
+		if (pOptimization != nullptr)
+			m_OptimizationLookup.push_back(pResource);
 	}
 
 	// Clear all build items and Resources
@@ -1315,4 +1319,43 @@ namespace NMR {
 		return size;
 	}
 
+	eModelPartOptimizationMode CModel::getOptimizationMode()
+	{
+		return m_optimizationMode;
+	}
+
+	void CModel::setOptimizationMode(eModelPartOptimizationMode nMode)
+	{
+		m_optimizationMode = nMode;
+	}
+
+	PUUID CModel::getOptimizationUUID()
+	{
+		return m_optimizationUUID;
+	}
+
+	void CModel::setOptimizationUUID(NMR::PUUID pUUID)
+	{
+		registerUUID(pUUID);
+		if (m_optimizationUUID) {
+			unRegisterUUID(m_optimizationUUID);
+		}
+		m_optimizationUUID = pUUID;
+	}
+
+	nfBool CModel::hasOptimization() {
+		return m_optimizationUUID != nullptr;
+	}
+
+	nfUint32 CModel::getOptimizationCount() {
+		return (nfUint32)m_OptimizationLookup.size();
+	}
+
+	PModelResource CModel::getOptimizationResource(_In_ nfUint32 nIndex) {
+		nfUint32 nCount = getOptimizationCount();
+		if (nIndex >= nCount)
+			throw CNMRException(NMR_ERROR_INVALIDINDEX);
+
+		return m_OptimizationLookup[nIndex];
+	}
 }

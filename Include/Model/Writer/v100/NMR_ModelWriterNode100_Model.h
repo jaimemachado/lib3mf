@@ -57,6 +57,7 @@ namespace NMR {
 		nfBool m_bWriteNurbsExtension;
 		nfBool m_bWriteSliceExtension;
 		nfBool m_bWriteSecureContentExtension;
+		nfBool m_bWritePartOptimizationExtension;
 		nfBool m_bWriteBaseMaterials;
 		nfBool m_bWriteObjects;
 		nfBool m_bIsRootModel;
@@ -81,6 +82,9 @@ namespace NMR {
 
 		void writeSliceStacks();
 		void writeSliceStack(_In_ CModelSliceStack *pSliceStack);
+
+		void writePartOptimizations();
+		void writePartOptimization(_In_ PModelOptimization pOptimization);
 
 		void writeComponentsObject(_In_ CModelComponentsObject * pComponentsObject);
 

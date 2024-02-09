@@ -38,6 +38,7 @@ build item.
 #include "Model/Classes/NMR_Model.h" 
 #include "Model/Classes/NMR_ModelObject.h" 
 #include "Model/Classes/NMR_ModelMetaDataGroup.h" 
+#include "Model/Classes/NMR_ModelOptimization.h"
 #include "Common/NMR_Types.h" 
 #include "Common/Math/NMR_Matrix.h" 
 
@@ -57,7 +58,10 @@ namespace NMR {
 		PUUID m_UUID;
 		std::string m_sPath;
 
+		ModelResourceID m_optimizationID;
+		ModelResourceIndex m_optimizationIndex;
 		PModelMetaDataGroup m_MetaDataGroup;
+
 	public:
 		CModelBuildItem() = delete;
 		CModelBuildItem(_In_ CModelObject * pObject, _In_ nfUint32 nHandle);
@@ -94,6 +98,15 @@ namespace NMR {
 		nfUint32 getHandle();
 
 		bool isValidForSlices();
+
+		bool hasOptimization();
+		
+		ModelResourceID getOptimizationID();
+
+		ModelResourceIndex getOptimizationIndex();
+
+		void assignOptimization(ModelResourceID optimizationID, ModelResourceIndex optimizationIndex);
+
 	};
 
 	typedef std::shared_ptr <CModelBuildItem> PModelBuildItem;

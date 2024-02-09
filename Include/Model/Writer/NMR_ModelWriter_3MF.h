@@ -48,6 +48,9 @@ namespace NMR {
 		// Creates a slicestack attachment stream
 		void writeNonRootModelStream(_In_ CXmlWriter *pXMLWriter);
 
+		//creates a optimization attachment stream
+		void writeOptimizationStream(_In_ CXmlWriter *pXMLWriter);
+
 		// These are OPC dependent functions
 		virtual void createPackage(_In_ CModel * pModel) = 0;
 		virtual void writePackageToStream(_In_ PExportStream pStream) = 0;

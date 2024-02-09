@@ -56,6 +56,7 @@ namespace NMR {
 		void addAttachments(_In_ CModel * pModel, _In_ POpcPackagePart pModelPart);
 
 		void addNonRootModels();
+		void addOptimizationAttachments();
 
 	public:
 		CModelWriter_3MF_Native() = delete;

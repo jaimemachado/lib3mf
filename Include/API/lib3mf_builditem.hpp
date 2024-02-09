@@ -100,6 +100,16 @@ public:
 	IMetaDataGroup * GetMetaDataGroup ();
 
 	Lib3MF::sBox GetOutbox();
+
+	// Inherited via IBuildItem
+	virtual bool HasOptimization() override;
+
+	virtual Lib3MF_uint32 GetOptimizationID();
+
+	virtual Lib3MF_uint32 GetOptimizationIndex();
+
+	virtual void AssignOptimizationParam(const Lib3MF_uint32 nResourceID, const Lib3MF_uint32 nResourceIndex) override;
+
 };
 
 }
